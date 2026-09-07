@@ -758,7 +758,7 @@ window.WESPEAK = {
 <script>
 'use strict';
 (() => {
-const $=(s,root=document)=>root.querySelector(s), $=(s,root=document)=>[...root.querySelectorAll(s)];
+const $=(s,root=document)=>root.querySelector(s), $$=(s,root=document)=>[...root.querySelectorAll(s)];
 const {services,cases,flows}=window.WESPEAK;
 const motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
 let userPaused=false;
@@ -781,7 +781,7 @@ function applyMotion(){
  motionButton.title=paused?'Activar animaciones':'Pausar animaciones';
  motionButton.firstElementChild.textContent=paused?'▶':'Ⅱ';
  $('.motion-label').textContent=paused?'Activar movimiento':'Pausar movimiento';
- if(paused){$('video').filter(v=>!v.controls).forEach(v=>v.pause());}
+ if(paused){$$('video').filter(v=>!v.controls).forEach(v=>v.pause());}
  else {if(ambientVisible)playAmbient();}
 }
 motionButton.addEventListener('click',()=>{userPaused=!paused;paused=userPaused;try{sessionStorage.setItem('wespeak-motion',paused?'paused':'playing');}catch{}applyMotion();});
@@ -791,13 +791,13 @@ motionQuery.addEventListener('change',()=>{paused=userPaused||motionQuery.matche
 const menuButton=$('.menu-toggle'),mobileMenu=$('#mobile-menu');
 function closeMenu(){mobileMenu.hidden=true;menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Abrir menú');document.body.style.overflow='';}
 menuButton.addEventListener('click',()=>{const open=mobileMenu.hidden;mobileMenu.hidden=!open;menuButton.setAttribute('aria-expanded',String(open));menuButton.setAttribute('aria-label',open?'Cerrar menú':'Abrir menú');document.body.style.overflow=open?'hidden':'';});
-$('a',mobileMenu).forEach(a=>a.addEventListener('click',closeMenu));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mobileMenu.hidden){closeMenu();menuButton.focus();}if(e.key==='Tab'&&!mobileMenu.hidden){const focusables=[menuButton,...$('a',mobileMenu)];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+$$('a',mobileMenu).forEach(a=>a.addEventListener('click',closeMenu));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!mobileMenu.hidden){closeMenu();menuButton.focus();}if(e.key==='Tab'&&!mobileMenu.hidden){const focusables=[menuButton,...$$('a',mobileMenu)];const first=focusables[0],last=focusables.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
 matchMedia('(min-width:701px)').addEventListener('change',e=>{if(e.matches)closeMenu();});
 
 // Service chapters: distinct editorial compositions, with three views per service.
 let selectedService='estrategia',selectedSample=0,previewAnimation;
-function keyboardTabs(container,selector,activate){container.addEventListener('keydown',e=>{const items=$(selector,container),index=items.indexOf(document.activeElement);if(index<0)return;let next=index;if(e.key==='ArrowDown'||e.key==='ArrowRight')next=(index+1)%items.length;else if(e.key==='ArrowUp'||e.key==='ArrowLeft')next=(index-1+items.length)%items.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=items.length-1;else return;e.preventDefault();items[next].focus();activate(items[next]);});}
+function keyboardTabs(container,selector,activate){container.addEventListener('keydown',e=>{const items=$$(selector,container),index=items.indexOf(document.activeElement);if(index<0)return;let next=index;if(e.key==='ArrowDown'||e.key==='ArrowRight')next=(index+1)%items.length;else if(e.key==='ArrowUp'||e.key==='ArrowLeft')next=(index-1+items.length)%items.length;else if(e.key==='Home')next=0;else if(e.key==='End')next=items.length-1;else return;e.preventDefault();items[next].focus();activate(items[next]);});}
 function specimenMarkup(key,index){const s=services[key],sample=s.samples[index];
  const headline=esc(sample.headline).replaceAll('\n','<br>');
  if(key==='estrategia')return `<div class="brand-specimen variation-${index}"><span class="specimen-label">${esc(s.name)}</span><p class="specimen-headline">${headline}</p><span class="specimen-caption">${esc(sample.detail)}</span></div>`;
@@ -809,19 +809,19 @@ function specimenMarkup(key,index){const s=services[key],sample=s.samples[index]
 }
 function selectSample(index){selectedSample=index;const s=services[selectedService],sample=s.samples[index],panel=$('#service-preview');
  $('.sample-controls').setAttribute('aria-label',`Explora ${s.name}`);
- $('[data-sample]').forEach((button,i)=>{button.textContent=s.samples[i].label;button.setAttribute('aria-pressed',String(i===index));});
+ $$('[data-sample]').forEach((button,i)=>{button.textContent=s.samples[i].label;button.setAttribute('aria-pressed',String(i===index));});
  $('#service-specimen').innerHTML=specimenMarkup(selectedService,index);
  $('#preview-title').textContent=sample.title;$('#preview-description').textContent=sample.description;
  if(!paused){panel.classList.remove('changing');void panel.offsetWidth;panel.classList.add('changing');clearTimeout(previewAnimation);previewAnimation=setTimeout(()=>panel.classList.remove('changing'),600);}
 }
 function selectService(key){const s=services[key];if(!s)return;selectedService=key;
- $('.service-tab').forEach(t=>{const active=t.dataset.service===key;t.classList.toggle('active',active);t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});
+ $$('.service-tab').forEach(t=>{const active=t.dataset.service===key;t.classList.toggle('active',active);t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});
  const panel=$('#service-preview');panel.setAttribute('aria-labelledby',`tab-${key}`);panel.dataset.selected=key;
  $('#preview-category').textContent=s.category;$('#preview-index').textContent=`${s.number} / 05`;
  $('#preview-detail').href=`#servicio/${key}`;$('.preview-texture').src=`assets/${s.texture}`;selectSample(0);
 }
-$('.service-tab').forEach(t=>t.addEventListener('click',()=>selectService(t.dataset.service)));
-$('[data-sample]').forEach(t=>t.addEventListener('click',()=>selectSample(Number(t.dataset.sample))));
+$$('.service-tab').forEach(t=>t.addEventListener('click',()=>selectService(t.dataset.service)));
+$$('[data-sample]').forEach(t=>t.addEventListener('click',()=>selectSample(Number(t.dataset.sample))));
 keyboardTabs($('.service-tabs'),'.service-tab',t=>selectService(t.dataset.service));
 const serviceLayout=matchMedia('(max-width:800px)');
 function updateServiceOrientation(){ $('.service-tabs').setAttribute('aria-orientation',serviceLayout.matches?'horizontal':'vertical'); }
@@ -832,7 +832,7 @@ keyboardTabs($('.sample-controls'),'button',t=>selectSample(Number(t.dataset.sam
 let currentFlow='leads',currentScene=0;
 function selectScene(index){currentScene=index;const f=flows[currentFlow],step=f.steps[index];
  $('.scenario-stage').dataset.step=String(index);
- $('[data-scene-step]').forEach((button,i)=>{button.setAttribute('aria-pressed',String(i===index));$('b',button).textContent=f.steps[i].label;});
+ $$('[data-scene-step]').forEach((button,i)=>{button.setAttribute('aria-pressed',String(i===index));$('b',button).textContent=f.steps[i].label;});
  const author=currentFlow==='leads'?'CLIENTE':'TU EQUIPO';
  $('#scenario-messages').innerHTML=`<div class="message incoming"><span>${author}</span><p>${esc(step.incoming)}</p></div>${step.answer?`<div class="message answer"><span>CON CÓRTEX</span><p>${esc(step.answer)}</p></div>`:`<div class="waiting-message">${currentFlow==='operacion'?'Los acuerdos todavía están en la conversación.':'Todavía no hay respuesta.'}</div>`}`;
  $('#scenario-status').textContent=step.status;
@@ -842,25 +842,25 @@ function selectScene(index){currentScene=index;const f=flows[currentFlow],step=f
  const stage=$('.scenario-stage');if(!paused){stage.classList.remove('scene-change');void stage.offsetWidth;stage.classList.add('scene-change');}
 }
 function selectFlow(key){currentFlow=key;const f=flows[key];
- $('.flow-tabs button').forEach(t=>{const active=t.dataset.flow===key;t.classList.toggle('active',active);t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});
+ $$('.flow-tabs button').forEach(t=>{const active=t.dataset.flow===key;t.classList.toggle('active',active);t.setAttribute('aria-selected',String(active));t.tabIndex=active?0:-1;});
  $('#flow-panel').setAttribute('aria-labelledby',`flow-tab-${key}`);$('.scenario-stage').dataset.kind=key;
  $('#scenario-situation').textContent=f.situation;$('#scenario-title').textContent=f.title;
  $('#scenario-workspace').textContent=f.workspace;$('#scenario-context').textContent=f.context;selectScene(0);
 }
-$('[data-flow]').forEach(b=>b.addEventListener('click',()=>selectFlow(b.dataset.flow)));
+$$('[data-flow]').forEach(b=>b.addEventListener('click',()=>selectFlow(b.dataset.flow)));
 keyboardTabs($('.flow-tabs'),'button',t=>selectFlow(t.dataset.flow));
-$('[data-scene-step]').forEach(b=>b.addEventListener('click',()=>selectScene(Number(b.dataset.sceneStep))));
+$$('[data-scene-step]').forEach(b=>b.addEventListener('click',()=>selectScene(Number(b.dataset.sceneStep))));
 keyboardTabs($('.scenario-steps'),'button',t=>selectScene(Number(t.dataset.sceneStep)));
 $('#scene-next').addEventListener('click',()=>selectScene((currentScene+1)%3));
 selectService('estrategia');selectFlow('leads');
 
 // Video is loaded on intent or on entering the manifesto section.
 function loadVideo(v){if(!v.getAttribute('src')&&v.dataset.src){v.src=v.dataset.src;v.load();}}
-$('[data-hover-video]').forEach(v=>{const card=v.closest('.case-card');card.addEventListener('pointerenter',e=>{if(e.pointerType==='touch'||paused||dialog?.open)return;loadVideo(v);v.play().then(()=>{if(card.matches(':hover'))card.classList.add('is-playing');else v.pause();}).catch(()=>{});});card.addEventListener('pointerleave',()=>{v.pause();card.classList.remove('is-playing');});});
+$$('[data-hover-video]').forEach(v=>{const card=v.closest('.case-card');card.addEventListener('pointerenter',e=>{if(e.pointerType==='touch'||paused||dialog?.open)return;loadVideo(v);v.play().then(()=>{if(card.matches(':hover'))card.classList.add('is-playing');else v.pause();}).catch(()=>{});});card.addEventListener('pointerleave',()=>{v.pause();card.classList.remove('is-playing');});});
 const ambient=$('.ambient-video');
 function playAmbient(){if(paused||document.hidden||dialog?.open)return;loadVideo(ambient);ambient.play().catch(()=>{});}
 new IntersectionObserver(entries=>{ambientVisible=entries[0].isIntersecting;if(ambientVisible)playAmbient();else ambient.pause();},{threshold:.12}).observe($('.manifesto'));
-document.addEventListener('visibilitychange',()=>{if(document.hidden){$('video').forEach(v=>v.pause());}else{if(ambientVisible)playAmbient();}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){$$('video').forEach(v=>v.pause());}else{if(ambientVisible)playAmbient();}});
 
 // Native dialogs support Escape, focus containment and shareable hash addresses.
 let dialog=null,lastFocus=null,returnHash='#servicios',openedFromPage=false;
@@ -869,12 +869,12 @@ function caseBody(key){const c=cases[key];return `<span class="eyebrow">${esc(c.
 function contactBody(key){const s=services[key];return `<span class="eyebrow">${s?esc(s.name):'HABLEMOS DE TU SIGUIENTE MOVIMIENTO'}</span><h2 id="dialog-title">Todo empieza<br>con una conversación.</h2><p class="dialog-lead">Un poco de contexto nos ayuda a empezar por lo que de verdad necesitas.</p><form class="contact-form"><div class="form-grid"><label class="form-field">Tu nombre<input name="name" autocomplete="name" required maxlength="100" placeholder="¿Cómo te llamas?"></label><label class="form-field">Correo electrónico<input name="email" type="email" autocomplete="email" required maxlength="180" placeholder="tu@empresa.com"></label><label class="form-field full">Empresa <span class="muted">(opcional)</span><input name="company" autocomplete="organization" maxlength="150" placeholder="El nombre de tu marca"></label><label class="form-field full">${esc(s?s.question:'¿Qué te gustaría activar?')}<select name="objective" required><option value="">Selecciona una opción</option>${(s?s.options:Object.values(services).map(x=>x.name).concat('Ayúdenme a definirlo')).map(o=>`<option>${esc(o)}</option>`).join('')}</select></label><label class="form-field full">Inversión aproximada <span class="muted">(opcional)</span><input name="budget" maxlength="100" placeholder="Puede estar por definir"></label><label class="form-field full">Cuéntanos el reto<textarea name="details" required maxlength="2000" placeholder="Qué sucede hoy y qué te gustaría cambiar"></textarea></label></div><p class="form-note">Prepararemos un correo para <strong>contacto@wespeak.mx</strong>. Podrás revisarlo y enviarlo desde tu aplicación de correo. Este formulario no envía ni guarda tus datos en un servidor. </p><details class="form-privacy"><summary>Consulta la política de privacidad</summary><p>Los datos que escribas permanecen en esta página hasta que decidas abrir y enviar el correo. No guardamos el formulario en el almacenamiento del navegador.</p><p>Usamos la información que nos envíes para responder consultas y propuestas, mejorar nuestros servicios y enviar comunicaciones relacionadas con ellos cuando exista tu consentimiento. La preferencia de movimiento se conserva solo durante la sesión del navegador.</p><p>Para consultar sobre tu información, escribe a contacto@wespeak.mx.</p></details><button type="submit" class="button button-light">Preparar correo <span>↗</span></button><div class="form-result" hidden role="status"></div></form>`;}
 const privacyBody=`<span class="eyebrow">WESPEAK</span><h2 id="dialog-title">Política de privacidad</h2><div class="legal-copy"><p>En WeSpeak respetamos tu privacidad. El formulario de este sitio prepara un correo con el nombre, correo electrónico, empresa y detalles que escribas. La información permanece en esta página hasta que eliges abrir tu aplicación de correo y enviarla.</p><h3>Uso de la información</h3><p>Utilizamos la información que nos envíes para responder consultas y propuestas de proyectos, mejorar nuestros servicios y enviar comunicaciones relacionadas con ellos cuando exista tu consentimiento.</p><h3>Preferencias del sitio</h3><p>La preferencia de movimiento se conserva en tu navegador durante la sesión. No guardamos los datos del formulario en el almacenamiento del navegador.</p><h3>Contacto</h3><p>Para consultas relacionadas con tu información, escribe a <a href="mailto:contacto@wespeak.mx">contacto@wespeak.mx</a>.</p></div>`;
 const termsBody=`<span class="eyebrow">WESPEAK · VIGENCIA 2026</span><h2 id="dialog-title">Términos y condiciones</h2><div class="legal-copy"><p>Bienvenido a WeSpeak. Al acceder a nuestro sitio web y utilizar nuestros servicios, usted acepta cumplir con los siguientes términos y condiciones.</p><h3>1. Propiedad intelectual</h3><p>Todo el contenido, diseño, gráficos y código de este sitio web son propiedad de WeSpeak o de sus licenciantes y están protegidos por leyes de derechos de autor. No se permite la reproducción sin consentimiento explícito.</p><h3>2. Uso de servicios</h3><p>Nuestros servicios de consultoría, producción y estrategia se rigen por contratos individuales firmados con cada cliente. La información en este sitio web es de carácter informativo y promocional.</p><h3>3. Limitación de responsabilidad</h3><p>WeSpeak no será responsable de ningún daño directo, indirecto, incidental o consecuente que resulte del uso o la imposibilidad de uso de nuestro sitio web o servicios.</p><h3>4. Modificaciones</h3><p>Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado del sitio tras cualquier cambio constituye su aceptación de los nuevos términos.</p><h3>5. Ley aplicable</h3><p>Estos términos se rigen por las leyes vigentes en México. Cualquier disputa será resuelta en los tribunales competentes de la Ciudad de México.</p></div>`;
-function disposeDialog(restoreFocus=true){if(!dialog)return;$('video',dialog).forEach(v=>{v.pause();v.removeAttribute('src');v.load();});dialog.close();dialog.remove();dialog=null;document.body.style.overflow='';document.title=titleBase;if(restoreFocus&&lastFocus?.isConnected)lastFocus.focus({preventScroll:true});if(ambientVisible)playAmbient();}
+function disposeDialog(restoreFocus=true){if(!dialog)return;$$('video',dialog).forEach(v=>{v.pause();v.removeAttribute('src');v.load();});dialog.close();dialog.remove();dialog=null;document.body.style.overflow='';document.title=titleBase;if(restoreFocus&&lastFocus?.isConnected)lastFocus.focus({preventScroll:true});if(ambientVisible)playAmbient();}
 function closeDialog(){disposeDialog();if(openedFromPage){openedFromPage=false;history.back();}else{history.replaceState(null,'',returnHash);} }
-function renderDialog(body,label,videoMode=false){const wasOpen=!!dialog;disposeDialog(false);if(!wasOpen)lastFocus=document.activeElement;closeMenu();$('video').forEach(v=>v.pause());
+function renderDialog(body,label,videoMode=false){const wasOpen=!!dialog;disposeDialog(false);if(!wasOpen)lastFocus=document.activeElement;closeMenu();$$('video').forEach(v=>v.pause());
  const root=$('#dialog-root');root.innerHTML=`<dialog class="detail-dialog ${videoMode?'video-dialog':''}" aria-labelledby="dialog-title"><div class="dialog-toolbar"><span>${esc(label)}</span><button class="dialog-close" aria-label="Cerrar detalle">×</button></div><div class="dialog-body">${body}</div></dialog>`;dialog=$('dialog',root);
  $('.dialog-close',dialog).addEventListener('click',closeDialog);dialog.addEventListener('cancel',e=>{e.preventDefault();closeDialog();});dialog.addEventListener('click',e=>{if(e.target===dialog){const b=dialog.getBoundingClientRect();if(e.clientX<b.left||e.clientX>b.right||e.clientY<b.top||e.clientY>b.bottom)closeDialog();}});
- $('video',dialog).forEach(v=>v.addEventListener('error',()=>{if($('.video-error',dialog))return;const note=document.createElement('p');note.className='video-error';note.innerHTML=`No fue posible reproducir el video. <a href="${esc(v.getAttribute('src')||'assets/manifesto.mp4')}" target="_blank" rel="noopener">Abrir la pieza directamente ↗</a>`;v.after(note);}));
+ $$('video',dialog).forEach(v=>v.addEventListener('error',()=>{if($('.video-error',dialog))return;const note=document.createElement('p');note.className='video-error';note.innerHTML=`No fue posible reproducir el video. <a href="${esc(v.getAttribute('src')||'assets/manifesto.mp4')}" target="_blank" rel="noopener">Abrir la pieza directamente ↗</a>`;v.after(note);}));
  dialog.showModal();document.body.style.overflow='hidden';dialog.scrollTop=0;
  const form=$('form',dialog);if(form)form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;const data=new FormData(form);const kind=location.hash.split('/')[1];const service=services[kind]?.name||'Proyecto WeSpeak';const body=`Hola, WeSpeak.\n\nMe gustaría conversar sobre ${service}.\n\nNombre: ${data.get('name')}\nCorreo: ${data.get('email')}\nEmpresa: ${data.get('company')||'Por definir'}\nObjetivo: ${data.get('objective')}\nInversión: ${data.get('budget')||'Por definir'}\n\nEl reto:\n${data.get('details')}`;const url=`mailto:contacto@wespeak.mx?subject=${encodeURIComponent(`${service} · ${data.get('company')||data.get('name')}`)}&body=${encodeURIComponent(body)}`;const result=$('.form-result',form);result.hidden=false;result.innerHTML='<strong>Tu correo está preparado.</strong><p>Ábrelo para revisarlo y enviarlo. Si no tienes una aplicación de correo configurada, copia el mensaje.</p><div class="form-result-actions"></div>';
  const actions=$('.form-result-actions',result);const link=document.createElement('a');link.href=url;link.className='button button-light';link.textContent='Abrir correo ↗';actions.append(link);const copy=document.createElement('button');copy.type='button';copy.className='button button-dark';copy.textContent='Copiar mensaje';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(body);copy.textContent='Mensaje copiado';}catch{const text=document.createElement('textarea');text.value=body;text.readOnly=true;text.setAttribute('aria-label','Mensaje preparado para copiar');result.append(text);text.focus();text.select();copy.textContent='Selecciona y copia el mensaje';}});actions.append(copy);link.focus();
@@ -891,13 +891,13 @@ function route(){const hash=location.hash;const [type,key]=hash.slice(1).split('
 }
 function openRoute(hash){if(!isDetail(location.hash)){returnHash=location.hash||'#inicio';openedFromPage=true;history.pushState(null,'',hash);}else{history.replaceState(null,'',hash);}route();}
 document.addEventListener('click',e=>{const link=e.target.closest('a[href^="#"]');if(link&&isDetail(link.hash)){e.preventDefault();openRoute(link.hash);}});
-$('[data-reel]').forEach(b=>b.addEventListener('click',()=>openRoute('#manifiesto-video')));
+$$('[data-reel]').forEach(b=>b.addEventListener('click',()=>openRoute('#manifiesto-video')));
 window.addEventListener('hashchange',route);
 window.addEventListener('popstate',()=>{if(!isDetail(location.hash))openedFromPage=false;route();});
 
 // Scroll choreography is native: no forced scrolling or blocked gestures.
 const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');revealObserver.unobserve(entry.target);}}),{threshold:.07});
-$('.section-heading,.case-card,.digital-project,.process-grid article,.more-work,.client-roster,.contact-bottom').forEach(el=>{el.classList.add('reveal');revealObserver.observe(el);});
+$$('.section-heading,.case-card,.digital-project,.process-grid article,.more-work,.client-roster,.contact-bottom').forEach(el=>{el.classList.add('reveal');revealObserver.observe(el);});
 if(!paused)document.body.classList.add('js-motion');
 let scrollScheduled=false;
 function onScroll(){if(scrollScheduled)return;scrollScheduled=true;requestAnimationFrame(()=>{scrollScheduled=false;if(!paused){const rect=$('.manifesto').getBoundingClientRect();if(rect.top<innerHeight&&rect.bottom>0){const progress=Math.max(0,Math.min(1,(innerHeight-rect.top)/(innerHeight+rect.height)));$('.manifesto').style.setProperty('--reel-scale',String(1.12-progress*.12));}}});}
